@@ -1,0 +1,141 @@
+/* ==========================================================================
+   styles/tokens.css
+   Sistema de design da Carteira Holder.
+
+   Conceito: terminal financeiro sóbrio. Fundo grafite profundo (não preto
+   puro) para reduzir fadiga visual em uso prolongado; acento verde-petróleo
+   como cor de ação/destaque; cada classe de ativo mantém a cor já usada
+   na planilha para continuidade visual entre as duas ferramentas.
+
+   Tipografia: "Fraunces" (serifada, com personalidade, para números grandes
+   e títulos — remete a relatório financeiro impresso de qualidade) +
+   "Inter" (sans-serif neutra para dados densos e UI) + "JetBrains Mono"
+   (monoespaçada para valores tabulares, garante alinhamento de dígitos).
+   ========================================================================== */
+
+:root {
+  /* Paleta base */
+  --bg-deep: #14181c;
+  --bg-panel: #1b2127;
+  --bg-panel-raised: #212830;
+  --bg-hover: #283038;
+  --border-subtle: #2c343c;
+  --border-strong: #3a444e;
+
+  --text-primary: #eef1f3;
+  --text-secondary: #9aa6b0;
+  --text-tertiary: #6b7680;
+
+  --accent: #2dd4a7;
+  --accent-dim: #1f9c7d;
+  --accent-soft: rgba(45, 212, 167, 0.12);
+
+  --positive: #2dd4a7;
+  --negative: #e8625f;
+  --warning: #e8b65f;
+
+  /* Cores por classe de ativo (mesma paleta da planilha, ajustada para fundo escuro) */
+  --classe-acoes: #ef6b62;
+  --classe-fiis: #5b9bd9;
+  --classe-renda-fixa: #6fb37a;
+  --classe-etfs-brasil: #e0944a;
+  --classe-etfs-usa: #d666c7;
+  --classe-cripto: #e0b84a;
+
+  /* Tipografia.
+     As fontes abaixo (Fraunces, Inter, JetBrains Mono) são carregadas via
+     @font-face em styles/fonts.css quando os arquivos estiverem disponíveis
+     em src/assets/fonts (ver README "Fontes"). Até lá, ou se os arquivos
+     não estiverem presentes, o app cai graciosamente nas fontes de sistema
+     listadas a seguir — o app funciona 100% offline em ambos os casos. */
+  --font-display: "Fraunces", Georgia, "Times New Roman", serif;
+  --font-body: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-mono: "JetBrains Mono", "SF Mono", "Cascadia Code", Consolas, monospace;
+
+  /* Espaçamento e forma */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --shadow-panel: 0 1px 0 rgba(255, 255, 255, 0.03) inset, 0 8px 24px rgba(0, 0, 0, 0.24);
+
+  --sidebar-width: 232px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  background: var(--bg-deep);
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background: var(--accent-soft);
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border-radius: 8px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-tertiary);
+}
+
+a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+button {
+  font-family: var(--font-body);
+}
+
+input, select {
+  font-family: var(--font-body);
+  color: var(--text-primary);
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.num {
+  font-family: var(--font-mono);
+  font-feature-settings: "tnum" 1;
+}
+
+.classe-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+  }
+}

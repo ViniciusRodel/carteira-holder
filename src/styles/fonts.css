@@ -1,0 +1,50 @@
+/* styles/fonts.css
+ *
+ * Carregamento de fontes locais (sem depender de internet).
+ * Por padrão este arquivo não declara nenhuma fonte — o app usa as fontes
+ * de sistema definidas em tokens.css como fallback e funciona perfeitamente
+ * sem isto.
+ *
+ * Para usar as fontes de identidade visual originais (Fraunces, Inter,
+ * JetBrains Mono), baixe os arquivos .woff2 (veja o README, seção "Fontes")
+ * e coloque-os em src/assets/fonts/, depois descomente os blocos abaixo.
+ */
+
+/*
+@font-face {
+  font-family: "Fraunces";
+  src: url("../assets/fonts/Fraunces-Medium.woff2") format("woff2");
+  font-weight: 500;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Fraunces";
+  src: url("../assets/fonts/Fraunces-SemiBold.woff2") format("woff2");
+  font-weight: 600;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Inter";
+  src: url("../assets/fonts/Inter-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Inter";
+  src: url("../assets/fonts/Inter-Medium.woff2") format("woff2");
+  font-weight: 500;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Inter";
+  src: url("../assets/fonts/Inter-SemiBold.woff2") format("woff2");
+  font-weight: 600;
+  font-display: swap;
+}
+@font-face {
+  font-family: "JetBrains Mono";
+  src: url("../assets/fonts/JetBrainsMono-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-display: swap;
+}
+*/

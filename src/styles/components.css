@@ -1,0 +1,985 @@
+/* styles/components.css */
+
+/* ---------- Barra de progresso ---------- */
+.barra-progresso-trilho {
+  position: relative;
+  width: 100%;
+  background: var(--bg-deep);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.barra-progresso-fill {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.barra-progresso-marcador {
+  position: absolute;
+  top: -2px;
+  bottom: -2px;
+  width: 2px;
+  background: var(--text-tertiary);
+  opacity: 0.6;
+}
+
+/* ---------- Cards de classe (Dashboard) ---------- */
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  margin-bottom: 32px;
+}
+
+@media (max-width: 1180px) {
+  .cards-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 720px) {
+  .cards-grid { grid-template-columns: 1fr; }
+}
+
+.card-classe {
+  background: var(--bg-panel);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: 18px 20px;
+  box-shadow: var(--shadow-panel);
+  border-top: 2px solid var(--card-cor, var(--accent));
+}
+
+.card-classe-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.card-classe-nome {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--card-cor, var(--text-primary));
+}
+
+.card-classe-atingimento {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-tertiary);
+}
+
+.card-classe-valor {
+  font-family: var(--font-display);
+  font-size: 25px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 12px;
+  letter-spacing: -0.01em;
+}
+
+.card-classe-legendas {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11.5px;
+  color: var(--text-tertiary);
+  margin-bottom: 7px;
+}
+
+.card-classe-legendas b {
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+
+/* ---------- Painéis / superfícies genéricas ---------- */
+.painel {
+  background: var(--bg-panel);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-panel);
+}
+
+.painel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 18px 22px;
+  border-bottom: 1px solid var(--border-subtle);
+  flex-wrap: wrap;
+}
+
+.painel-titulo {
+  font-family: var(--font-display);
+  font-size: 17px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.painel-corpo {
+  padding: 20px 22px;
+}
+
+/* ---------- Tabelas ---------- */
+.tabela-wrap {
+  overflow-x: auto;
+}
+
+table.tabela {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+table.tabela th {
+  text-align: left;
+  font-size: 11.5px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-tertiary);
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border-subtle);
+  white-space: nowrap;
+  position: sticky;
+  top: 0;
+  background: var(--bg-panel);
+  z-index: 1;
+}
+
+table.tabela th.alinhar-direita,
+table.tabela td.alinhar-direita {
+  text-align: right;
+}
+
+table.tabela th.alinhar-centro,
+table.tabela td.alinhar-centro {
+  text-align: center;
+}
+
+table.tabela td {
+  padding: 9px 14px;
+  border-bottom: 1px solid var(--border-subtle);
+  color: var(--text-primary);
+  white-space: nowrap;
+}
+
+/* Primeira coluna (Código) fixa ao rolar tabelas largas horizontalmente */
+table.tabela th:first-child,
+table.tabela td:first-child {
+  position: sticky;
+  left: 0;
+  background: var(--bg-panel);
+  z-index: 2;
+  box-shadow: 2px 0 0 var(--border-subtle);
+}
+
+table.tabela tbody tr:hover td:first-child {
+  background: var(--bg-hover);
+}
+
+/* Coluna OP fixada na direita */
+table.tabela th.col-sticky-right,
+table.tabela td.col-sticky-right {
+  position: sticky;
+  right: 0;
+  background: var(--bg-panel);
+  z-index: 2;
+  box-shadow: -2px 0 0 var(--border-subtle);
+}
+
+table.tabela tbody tr:hover td.col-sticky-right {
+  background: var(--bg-hover);
+}
+
+table.tabela tfoot td.col-sticky-right {
+  background: var(--bg-panel-raised);
+}
+
+table.tabela tbody tr:hover {
+  background: var(--bg-hover);
+}
+
+table.tabela tfoot td {
+  font-weight: 700;
+  border-top: 1px solid var(--border-strong);
+  border-bottom: none;
+  background: var(--bg-panel-raised);
+}
+
+td.positivo { color: var(--positive); }
+td.negativo { color: var(--negative); }
+
+.codigo-ativo {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+/* ---------- Inputs ---------- */
+.input-base {
+  background: var(--bg-deep);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  padding: 7px 10px;
+  font-size: 13px;
+  color: var(--text-primary);
+  width: 100%;
+  transition: border-color 0.15s ease;
+}
+
+.input-base:focus {
+  border-color: var(--accent);
+}
+
+.input-tabela {
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  padding: 4px 7px;
+  font-size: 13px;
+  color: var(--text-primary);
+  width: 100%;
+  font-family: var(--font-mono);
+  text-align: right;
+}
+
+.input-tabela:hover {
+  border-color: var(--border-subtle);
+}
+
+.input-tabela:focus {
+  border-color: var(--accent);
+  background: var(--bg-deep);
+}
+
+/* ---------- Botões ---------- */
+.botao {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 16px;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: filter 0.15s ease, background 0.15s ease;
+}
+
+.botao-primario {
+  background: var(--accent);
+  color: #0c1411;
+}
+.botao-primario:hover { filter: brightness(1.08); }
+
+.botao-secundario {
+  background: var(--bg-panel-raised);
+  border-color: var(--border-strong);
+  color: var(--text-primary);
+}
+.botao-secundario:hover { background: var(--bg-hover); }
+
+.botao-ghost {
+  background: transparent;
+  color: var(--text-secondary);
+}
+.botao-ghost:hover { color: var(--text-primary); background: var(--bg-hover); }
+
+.botao-perigo {
+  background: transparent;
+  color: var(--negative);
+}
+.botao-perigo:hover { background: rgba(232, 98, 95, 0.12); }
+
+.botao-icone {
+  padding: 7px;
+  border-radius: var(--radius-sm);
+}
+
+/* ---------- Toggle (interruptor) ---------- */
+.toggle {
+  position: relative;
+  width: 36px;
+  height: 20px;
+  border-radius: 999px;
+  background: var(--border-strong);
+  cursor: pointer;
+  transition: background 0.18s ease;
+  border: none;
+  flex-shrink: 0;
+}
+
+.toggle[data-on="true"] {
+  background: var(--accent);
+}
+
+.toggle-bolinha {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #fff;
+  transition: transform 0.18s ease;
+}
+
+.toggle[data-on="true"] .toggle-bolinha {
+  transform: translateX(16px);
+}
+
+/* ---------- Badge de validação ---------- */
+.badge-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.badge-status--ok {
+  background: rgba(45, 212, 167, 0.14);
+  color: var(--positive);
+}
+
+.badge-status--alerta {
+  background: rgba(232, 182, 95, 0.14);
+  color: var(--warning);
+}
+
+/* ---------- Slider de meta de classe ---------- */
+.slider-classe-linha {
+  padding: 14px 0;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.slider-classe-linha:last-of-type {
+  border-bottom: none;
+}
+
+.slider-classe-topo {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.slider-classe-nome {
+  font-size: 13.5px;
+  font-weight: 600;
+}
+
+.slider-classe-valor {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.slider-classe-total {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 16px;
+  margin-top: 6px;
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.slider-classe {
+  -webkit-appearance: none;
+  width: 100%;
+  height: 4px;
+  border-radius: 999px;
+  background: var(--border-strong);
+  outline: none;
+}
+
+.slider-classe::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--slider-cor, var(--accent));
+  cursor: pointer;
+  border: 3px solid var(--bg-panel);
+  box-shadow: 0 0 0 1px var(--slider-cor, var(--accent));
+}
+
+.slider-classe::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--slider-cor, var(--accent));
+  cursor: pointer;
+  border: 3px solid var(--bg-panel);
+}
+
+/* ---------- Empty state ---------- */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 48px 24px;
+  color: var(--text-secondary);
+}
+
+.empty-state-titulo {
+  font-family: var(--font-display);
+  font-size: 16px;
+  color: var(--text-primary);
+  margin: 12px 0 4px;
+}
+
+/* ---------- Linha de KPI superior ---------- */
+.kpi-linha {
+  display: flex;
+  align-items: baseline;
+  gap: 28px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.kpi-bloco-label {
+  font-size: 12px;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 4px;
+}
+
+.kpi-bloco-valor {
+  font-family: var(--font-display);
+  font-size: 32px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+/* ---------- Abas (filtro por classe) ---------- */
+.abas-linha {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 18px;
+  overflow-x: auto;
+  padding-bottom: 2px;
+}
+
+.aba-botao {
+  background: transparent;
+  border: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
+  padding: 7px 14px;
+  border-radius: 999px;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+}
+
+.aba-botao:hover {
+  color: var(--text-primary);
+  border-color: var(--border-strong);
+}
+
+.aba-botao--ativa {
+  background: var(--accent-soft);
+  border-color: var(--accent-dim);
+  color: var(--accent);
+}
+
+/* ---------- Formulário inline de novo ativo ---------- */
+.form-novo-ativo {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+  padding: 18px 22px;
+  margin-bottom: 18px;
+  flex-wrap: wrap;
+}
+
+.campo-form {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 140px;
+}
+
+.campo-form label {
+  font-size: 11.5px;
+  color: var(--text-tertiary);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+/* ---------- Painel de configuração do rebalanceamento ---------- */
+.rebal-config {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 20px;
+  padding: 20px 22px;
+  margin-bottom: 18px;
+}
+
+.input-aporte {
+  font-family: var(--font-mono);
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.rebal-resumo {
+  display: flex;
+  gap: 32px;
+}
+
+.rebal-resumo-valor {
+  font-size: 19px;
+  font-weight: 700;
+  margin-top: 2px;
+}
+
+/* ---------- Botões de operação na tabela de rebalanceamento ---------- */
+.rebal-op-botoes {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.rebal-op-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: var(--radius-sm);
+  border: none;
+  cursor: pointer;
+  transition: filter 0.15s ease, opacity 0.15s ease;
+}
+
+.rebal-op-btn--manual {
+  background: var(--bg-panel-raised);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-strong);
+}
+.rebal-op-btn--manual:hover {
+  color: var(--text-primary);
+  background: var(--bg-hover);
+}
+
+.rebal-op-btn--comprar {
+  background: var(--positive);
+  color: #0c1411;
+}
+.rebal-op-btn--comprar:hover {
+  filter: brightness(1.12);
+}
+
+.rebal-op-btn--desabilitado {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+.rebal-op-btn--desabilitado:hover {
+  filter: none;
+}
+
+/* ---------- Modal de operação ---------- */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  backdrop-filter: blur(2px);
+}
+
+.modal-caixa {
+  background: var(--bg-panel);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.5);
+  width: 100%;
+  max-width: 380px;
+  display: flex;
+  flex-direction: column;
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 22px 14px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.modal-titulo {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.modal-fechar {
+  background: none;
+  border: none;
+  color: var(--text-tertiary);
+  font-size: 20px;
+  cursor: pointer;
+  line-height: 1;
+  padding: 2px 6px;
+  border-radius: var(--radius-sm);
+}
+.modal-fechar:hover {
+  color: var(--text-primary);
+  background: var(--bg-hover);
+}
+
+.modal-corpo {
+  padding: 20px 22px;
+}
+
+.modal-tipo-linha {
+  display: flex;
+  gap: 10px;
+}
+
+.modal-tipo-btn {
+  flex: 1;
+  padding: 10px 0;
+  border-radius: var(--radius-sm);
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+  background: var(--bg-panel-raised);
+  border: 1px solid var(--border-strong);
+  color: var(--text-secondary);
+  transition: all 0.15s ease;
+}
+.modal-tipo-btn:hover {
+  color: var(--text-primary);
+}
+
+.modal-tipo-btn--ativo {
+  background: var(--accent-soft);
+  border-color: var(--accent-dim);
+  color: var(--accent);
+}
+
+.modal-tipo-btn--venda.modal-tipo-btn--ativo-venda {
+  background: rgba(232, 98, 95, 0.14);
+  border-color: rgba(232, 98, 95, 0.4);
+  color: var(--negative);
+}
+
+.modal-preview {
+  margin-top: 12px;
+  font-size: 12.5px;
+  color: var(--text-tertiary);
+}
+.modal-preview strong {
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+}
+
+.modal-rodape {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 14px 22px 20px;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.botao-perigo-solid {
+  background: var(--negative);
+  color: #fff;
+  border-color: transparent;
+}
+.botao-perigo-solid:hover {
+  filter: brightness(1.1);
+}
+.botao-perigo-solid:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* ---------- Cotações: painel de token brapi.dev ---------- */
+.cotacoes-token-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+  padding: 14px 18px;
+}
+.cotacoes-token-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.cotacoes-token-label {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+.cotacoes-token-hint {
+  font-size: 12px;
+  color: var(--text-tertiary);
+}
+.cotacoes-token-campo {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex: 1;
+  min-width: 260px;
+  max-width: 520px;
+}
+.cotacoes-token-input {
+  flex: 1;
+  font-family: monospace;
+  font-size: 13px;
+}
+
+/* ---------- Tabela compacta (Rebalanceamento) ---------- */
+.tabela-wrap--rebal {
+  overflow-x: visible;
+}
+table.tabela--rebal th {
+  padding: 8px 8px;
+  font-size: 10.5px;
+}
+table.tabela--rebal td {
+  padding: 7px 8px;
+  font-size: 12.5px;
+}
+table.tabela--rebal th:first-child,
+table.tabela--rebal td:first-child {
+  padding-left: 12px;
+}
+table.tabela--rebal th.col-sticky-right,
+table.tabela--rebal td.col-sticky-right {
+  padding: 7px 10px;
+}
+
+/* ---------- Toast de feedback de operações ---------- */
+.toast-container {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  z-index: 9999;
+  pointer-events: none;
+}
+.toast {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #fff;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+  animation: toast-in 0.2s ease;
+  pointer-events: auto;
+}
+.toast--compra { background: var(--accent); }
+.toast--venda  { background: #e05555; }
+@keyframes toast-in {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ---------- Cotações: botão de atualização por linha ---------- */
+.cotacoes-btn-atualizar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+.cotacoes-btn-atualizar:hover:not(:disabled) {
+  background: var(--bg-hover);
+  color: var(--accent);
+  border-color: var(--accent);
+}
+.cotacoes-btn-atualizar:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+.cotacoes-btn-atualizar--ok {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+.cotacoes-btn-atualizar--erro {
+  color: var(--danger, #e05);
+  border-color: var(--danger, #e05);
+}
+
+/* ---------- Cabeçalhos de coluna ordenáveis ---------- */
+th.th-ordenavel {
+  cursor: pointer;
+  user-select: none;
+  transition: color 0.12s ease;
+}
+th.th-ordenavel:hover {
+  color: var(--text-primary);
+}
+th.th-ordenavel--ativo {
+  color: var(--accent);
+}
+.th-ordenavel-inner {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  white-space: nowrap;
+}
+.th-seta-icone {
+  font-size: 10px;
+  opacity: 0.7;
+}
+th.th-ordenavel--ativo .th-seta-icone {
+  opacity: 1;
+  color: var(--accent);
+}
+
+/* ---------- Cotações: barra de status ---------- */
+.cotacoes-status-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 18px;
+  flex-wrap: wrap;
+}
+
+.cotacoes-status-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 32px;
+}
+
+.cotacoes-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  font-size: 12.5px;
+  font-weight: 600;
+}
+
+.cotacoes-status-badge--ok {
+  background: rgba(45, 212, 167, 0.12);
+  color: var(--positive);
+}
+
+.cotacoes-status-badge--erro {
+  background: rgba(232, 98, 95, 0.12);
+  color: var(--negative);
+}
+
+.cotacoes-status-badge--sync {
+  background: rgba(232, 182, 95, 0.12);
+  color: var(--warning);
+}
+
+/* ---------- Cotações: badge fonte (auto/manual) ---------- */
+.cotacoes-fonte-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.cotacoes-fonte-badge--auto {
+  background: rgba(45, 212, 167, 0.12);
+  color: var(--positive);
+}
+
+.cotacoes-fonte-badge--manual {
+  background: var(--bg-panel-raised);
+  color: var(--text-tertiary);
+  border: 1px solid var(--border-subtle);
+}
+
+@keyframes cotacoes-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ---------- Campo de token: botão olho ---------- */
+.cotacoes-token-input--com-olho {
+  padding-right: 36px;
+}
+.cotacoes-token-olho {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-tertiary);
+  display: flex;
+  align-items: center;
+  padding: 4px;
+  border-radius: 4px;
+  line-height: 0;
+}
+.cotacoes-token-olho:hover {
+  color: var(--text-primary);
+  background: var(--bg-hover);
+}
+
+/* ---------- Histórico: badges e abas ---------- */
+.historico-tipo-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+}
+.historico-tipo-badge--compra {
+  background: rgba(45, 212, 167, 0.12);
+  color: var(--positive);
+}
+.historico-tipo-badge--venda {
+  background: rgba(232, 98, 95, 0.12);
+  color: var(--negative);
+}
+.historico-aba-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  background: var(--bg-panel-raised);
+  border-radius: 999px;
+  font-size: 10px;
+  padding: 0 4px;
+  margin-left: 5px;
+  font-weight: 700;
+}
+.aba-botao--ativa .historico-aba-count {
+  background: var(--accent-soft);
+  color: var(--accent);
+}

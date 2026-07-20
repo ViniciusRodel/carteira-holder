@@ -1,0 +1,112 @@
+/* styles/graficos.css */
+
+.graficos-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1.3fr;
+  gap: 16px;
+}
+
+@media (max-width: 1180px) {
+  .graficos-grid { grid-template-columns: 1fr; }
+}
+
+.grafico-titulo {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin: 0 0 14px;
+}
+
+.grafico-pizza-wrap,
+.grafico-barras-wrap {
+  background: var(--bg-panel);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: 18px 20px;
+}
+
+.grafico-pizza-corpo {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.grafico-legenda {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  flex: 1;
+  min-width: 0;
+}
+
+.grafico-legenda li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12.5px;
+}
+
+.grafico-legenda-bolinha {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.grafico-legenda-nome {
+  color: var(--text-secondary);
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.grafico-legenda-valor {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.grafico-barras-area {
+  display: flex;
+  justify-content: center;
+  overflow-x: auto;
+}
+
+.grafico-barras-eixo {
+  display: flex;
+  justify-content: center;
+  font-size: 10px;
+  color: var(--text-tertiary);
+  margin-top: 4px;
+  text-align: center;
+}
+
+.grafico-barras-legenda {
+  display: flex;
+  gap: 18px;
+  justify-content: center;
+  margin-top: 12px;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.grafico-barras-legenda span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.swatch {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  display: inline-block;
+  background: var(--accent);
+}
+
+.swatch--vazio {
+  opacity: 0.35;
+}
