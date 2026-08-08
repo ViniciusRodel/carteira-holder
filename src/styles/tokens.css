@@ -80,7 +80,8 @@ body {
 }
 
 ::selection {
-  background: var(--accent-soft);
+  background: var(--accent);
+  color: var(--bg-deep);
 }
 
 ::-webkit-scrollbar {
