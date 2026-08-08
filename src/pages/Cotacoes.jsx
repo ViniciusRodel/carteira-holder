@@ -1,9 +1,11 @@
-import React, { useState, useMemo, useCallback } from "react";
+import React, { useState, useMemo, useCallback, useRef } from "react";
 import { useCarteira } from "../lib/CarteiraContext";
 import { useOrdenacao, aplicarOrdenacao } from "../lib/useOrdenacao";
 import ClassePill from "../components/ClassePill";
 import ThOrdenavel from "../components/ThOrdenavel";
-import { formatarNumero } from "../lib/formato";
+import CampoEdicaoInline from "../components/CampoEdicaoInline";
+import { formatarMoeda } from "../lib/formato";
+import { useToast } from "../lib/useToast";
 
 const REGEX_B3 = /^[A-Z]{3,5}\d{1,2}$/;
 
@@ -17,6 +19,8 @@ export default function Cotacoes() {
     ativos,
     atualizarAtivo,
     atualizarCotacaoUnica,
+    iniciarEdicaoCotacao,
+    finalizarEdicaoCotacao,
     statusCotacao,
     brapiToken,
     setBrapiToken,
@@ -29,6 +33,8 @@ export default function Cotacoes() {
   const [carregando, setCarregando] = useState({}); // { [codigo]: true | "ok" | "erro" }
   const [atualizandoTodos, setAtualizandoTodos] = useState(false);
   const [statusManual, setStatusManual] = useState(null); // resultado da última atualização manual
+  const canceladoRef = useRef(false);
+  const { toasts, add: addToast } = useToast();
 
   function salvarToken(e) {
     e.preventDefault();
@@ -61,7 +67,12 @@ export default function Cotacoes() {
   }, [atualizarCotacaoUnica]);
 
   const handleAtualizarTodos = useCallback(async () => {
-    if (atualizandoTodos) return;
+    if (atualizandoTodos) {
+      // Segundo clique durante a execução: pede cancelamento antes do próximo ativo.
+      canceladoRef.current = true;
+      return;
+    }
+    canceladoRef.current = false;
     setAtualizandoTodos(true);
 
     const cripto = ativos.filter((a) => a.classe === "Criptomoedas");
@@ -79,14 +90,17 @@ export default function Cotacoes() {
 
     // B3 sequencial — plano gratuito brapi.dev não suporta múltiplos símbolos
     for (const a of b3) {
+      if (canceladoRef.current) break;
       const r = await atualizarUm(a.codigo, a.classe);
       if (r?.ok) ok++; else erros++;
       setStatusManual((s) => ({ ...s, progresso: s.progresso + 1 }));
       await new Promise((r) => setTimeout(r, 300));
     }
 
-    setStatusManual({ estado: erros === 0 ? "ok" : "parcial", ok, erros, total });
+    const cancelado = canceladoRef.current;
+    setStatusManual({ estado: cancelado ? "parcial" : erros === 0 ? "ok" : "parcial", ok, erros, total });
     setAtualizandoTodos(false);
+    canceladoRef.current = false;
   }, [ativos, atualizarUm, atualizandoTodos]);
 
   return (
@@ -166,10 +180,10 @@ export default function Cotacoes() {
         <button
           className="botao botao-secundario"
           onClick={handleAtualizarTodos}
-          disabled={atualizandoTodos}
+          title={atualizandoTodos ? "Cancelar atualização em lote" : "Atualizar todos os ativos automáticos"}
         >
           {atualizandoTodos ? <SpinnerIcon /> : <RefreshIcon />}
-          {atualizandoTodos ? "Atualizando..." : "Atualizar todos"}
+          {atualizandoTodos ? "Cancelar" : "Atualizar todos"}
         </button>
       </div>
 
@@ -219,14 +233,21 @@ export default function Cotacoes() {
                       )}
                     </td>
                     <td className="alinhar-direita">
-                      <input
-                        type="number"
-                        step="0.01"
-                        className="input-tabela num"
-                        value={ativo.cotacao}
-                        onChange={(e) =>
-                          atualizarAtivo(ativo.codigo, { cotacao: parseFloat(e.target.value) || 0 })
-                        }
+                      <CampoEdicaoInline
+                        valor={ativo.cotacao}
+                        ariaLabel={`Cotação de ${ativo.codigo} em reais`}
+                        onEditingChange={(emEdicao) => {
+                          if (emEdicao) iniciarEdicaoCotacao(ativo.codigo);
+                          else finalizarEdicaoCotacao(ativo.codigo);
+                        }}
+                        onCommit={(novoValor) => {
+                          const anterior = ativo.cotacao;
+                          atualizarAtivo(ativo.codigo, { cotacao: novoValor });
+                          addToast(
+                            `${ativo.codigo}: ${formatarMoeda(anterior)} → ${formatarMoeda(novoValor)}`,
+                            "compra"
+                          );
+                        }}
                       />
                     </td>
                     <td className="alinhar-centro">
@@ -260,13 +281,23 @@ export default function Cotacoes() {
           </table>
         </div>
       </div>
+
+      {toasts.length > 0 && (
+        <div className="toast-container">
+          {toasts.map((t) => (
+            <div key={t.id} className={`toast toast--${t.tipo}`}>
+              ✓ {t.msg}
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
 
 function SpinnerIcon() {
   return (
-    <svg width="13" height="13" viewBox="0 0 13 13" fill="none" style={{ animation: "cotacoes-spin 1s linear infinite" }}>
+    <svg width="13" height="13" viewBox="0 0 13 13" fill="none" aria-hidden="true" style={{ animation: "cotacoes-spin 1s linear infinite" }}>
       <circle cx="6.5" cy="6.5" r="5" stroke="currentColor" strokeWidth="1.5" strokeDasharray="20 12" />
     </svg>
   );
@@ -274,7 +305,7 @@ function SpinnerIcon() {
 
 function CheckIcon() {
   return (
-    <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+    <svg width="13" height="13" viewBox="0 0 13 13" fill="none" aria-hidden="true">
       <path d="M2.5 7L5 9.5L10.5 4" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
@@ -282,7 +313,7 @@ function CheckIcon() {
 
 function AlertIcon() {
   return (
-    <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+    <svg width="13" height="13" viewBox="0 0 13 13" fill="none" aria-hidden="true">
       <path d="M6.5 2L11.5 11H1.5L6.5 2z" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round" />
       <path d="M6.5 5.5V7.5M6.5 9h.01" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
     </svg>
@@ -291,7 +322,7 @@ function AlertIcon() {
 
 function RefreshIcon() {
   return (
-    <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+    <svg width="13" height="13" viewBox="0 0 13 13" fill="none" aria-hidden="true">
       <path d="M11 6.5A4.5 4.5 0 1 1 6.5 2a4.5 4.5 0 0 1 3.18 1.32L11 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
       <path d="M11 2v3H8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
@@ -300,7 +331,7 @@ function RefreshIcon() {
 
 function OlhoAbertoIcon() {
   return (
-    <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
+    <svg width="15" height="15" viewBox="0 0 15 15" fill="none" aria-hidden="true">
       <path d="M1 7.5C1 7.5 3.5 3 7.5 3s6.5 4.5 6.5 4.5S11.5 12 7.5 12 1 7.5 1 7.5z" stroke="currentColor" strokeWidth="1.3" strokeLinejoin="round" />
       <circle cx="7.5" cy="7.5" r="1.8" stroke="currentColor" strokeWidth="1.3" />
     </svg>
@@ -309,7 +340,7 @@ function OlhoAbertoIcon() {
 
 function OlhoFechadoIcon() {
   return (
-    <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
+    <svg width="15" height="15" viewBox="0 0 15 15" fill="none" aria-hidden="true">
       <path d="M2 2l11 11M6.2 5.4A4.5 4.5 0 0 1 7.5 5c3.5 0 6 4.5 6 4.5a11.5 11.5 0 0 1-2.1 2.8M5.1 5.7A11.5 11.5 0 0 0 1.5 10S4 14 7.5 14c1.2 0 2.3-.4 3.2-1.1" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
     </svg>
   );

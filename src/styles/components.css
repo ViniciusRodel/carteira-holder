@@ -832,7 +832,6 @@ table.tabela--rebal td.col-sticky-right {
 
 /* ---------- Cabeçalhos de coluna ordenáveis ---------- */
 th.th-ordenavel {
-  cursor: pointer;
   user-select: none;
   transition: color 0.12s ease;
 }
@@ -841,6 +840,17 @@ th.th-ordenavel:hover {
 }
 th.th-ordenavel--ativo {
   color: var(--accent);
+}
+.th-ordenavel-btn {
+  all: unset;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+}
+.th-ordenavel-btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 3px;
 }
 .th-ordenavel-inner {
   display: inline-flex;
@@ -982,4 +992,146 @@ th.th-ordenavel--ativo .th-seta-icone {
 .aba-botao--ativa .historico-aba-count {
   background: var(--accent-soft);
   color: var(--accent);
+}
+
+/* ---------- Campo de edição inline (célula de planilha) ---------- */
+.campo-edicao-inline {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  width: 100%;
+}
+
+.campo-edicao-inline-input {
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  padding: 4px 20px 4px 16px;
+  font-size: 13px;
+  color: var(--text-primary);
+  width: 100%;
+  font-family: var(--font-mono);
+  text-align: right;
+  cursor: text;
+}
+
+.campo-edicao-inline-input--exibicao {
+  cursor: pointer;
+}
+
+.campo-edicao-inline:hover .campo-edicao-inline-input {
+  border-color: var(--border-subtle);
+}
+
+.campo-edicao-inline-input:focus {
+  outline: none;
+  border-color: var(--accent);
+  background: var(--bg-deep);
+}
+
+.campo-edicao-inline[data-estado="editando"] .campo-edicao-inline-input,
+.campo-edicao-inline[data-estado="alterado"] .campo-edicao-inline-input,
+.campo-edicao-inline[data-estado="salvando"] .campo-edicao-inline-input {
+  border-color: var(--accent);
+  background: var(--bg-deep);
+}
+
+.campo-edicao-inline[data-estado="sucesso"] .campo-edicao-inline-input {
+  border-color: var(--positive);
+  background: rgba(45, 212, 167, 0.1);
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.campo-edicao-inline[data-estado="erro"] .campo-edicao-inline-input {
+  border-color: var(--negative);
+  background: rgba(232, 98, 95, 0.1);
+}
+
+.campo-edicao-inline-lapis {
+  position: absolute;
+  left: 4px;
+  font-size: 10px;
+  color: var(--text-tertiary);
+  opacity: 0;
+  transition: opacity 0.12s ease;
+  pointer-events: none;
+}
+
+.campo-edicao-inline:hover .campo-edicao-inline-lapis {
+  opacity: 0.7;
+}
+
+.campo-edicao-inline[data-estado="editando"] .campo-edicao-inline-lapis,
+.campo-edicao-inline[data-estado="alterado"] .campo-edicao-inline-lapis,
+.campo-edicao-inline[data-estado="salvando"] .campo-edicao-inline-lapis {
+  opacity: 0;
+}
+
+.campo-edicao-inline-dot {
+  position: absolute;
+  right: 6px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--warning);
+}
+
+.campo-edicao-inline-spinner {
+  position: absolute;
+  right: 6px;
+  width: 10px;
+  height: 10px;
+  border: 1.5px solid var(--border-strong);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: campo-edicao-spin 0.6s linear infinite;
+}
+
+@keyframes campo-edicao-spin {
+  to { transform: rotate(360deg); }
+}
+
+.campo-edicao-inline-check {
+  position: absolute;
+  right: 6px;
+  color: var(--positive);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.campo-edicao-inline-warn {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 3px);
+  font-size: 10.5px;
+  color: var(--negative);
+  white-space: nowrap;
+  background: var(--bg-panel-raised);
+  padding: 2px 7px;
+  border-radius: 4px;
+  border: 1px solid var(--negative);
+  z-index: 6;
+}
+
+/* Remove spinners nativos e alinha comportamento do input[type=number] */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }

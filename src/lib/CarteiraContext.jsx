@@ -52,6 +52,17 @@ export function CarteiraProvider({ children }) {
   const brapiTokenRef = useRef(brapiToken);
   useEffect(() => { brapiTokenRef.current = brapiToken; }, [brapiToken]);
 
+  // Códigos com edição manual de cotação em andamento (campo com foco) — a
+  // atualização automática/manual via API ignora esses códigos enquanto o
+  // usuário estiver digitando, para não sobrescrever o valor em silêncio.
+  const emEdicaoRef = useRef(new Set());
+  const iniciarEdicaoCotacao = useCallback((codigo) => {
+    emEdicaoRef.current.add(codigo);
+  }, []);
+  const finalizarEdicaoCotacao = useCallback((codigo) => {
+    emEdicaoRef.current.delete(codigo);
+  }, []);
+
   const setBrapiToken = useCallback((token) => {
     setBrapiTokenState(token.trim());
   }, []);
@@ -74,6 +85,9 @@ export function CarteiraProvider({ children }) {
         const json = await resp.json();
         const preco = json[id]?.brl;
         if (preco > 0) {
+          if (emEdicaoRef.current.has(codigo)) {
+            return { ok: false, erro: "Ignorado — cotação está sendo editada manualmente" };
+          }
           setAtivos((prev) => prev.map((a) => a.codigo === codigo ? { ...a, cotacao: preco } : a));
           return { ok: true, preco };
         }
@@ -90,6 +104,9 @@ export function CarteiraProvider({ children }) {
         const item = json.results?.[0];
         const preco = item?.data?.regularMarketPrice ?? item?.regularMarketPrice;
         if (preco > 0) {
+          if (emEdicaoRef.current.has(codigo)) {
+            return { ok: false, erro: "Ignorado — cotação está sendo editada manualmente" };
+          }
           setAtivos((prev) => prev.map((a) => a.codigo === codigo ? { ...a, cotacao: preco } : a));
           return { ok: true, preco };
         }
@@ -210,7 +227,11 @@ export function CarteiraProvider({ children }) {
 
       if (atualizados > 0) {
         setAtivos((prev) =>
-          prev.map((a) => novas[a.codigo] !== undefined ? { ...a, cotacao: novas[a.codigo] } : a)
+          prev.map((a) =>
+            novas[a.codigo] !== undefined && !emEdicaoRef.current.has(a.codigo)
+              ? { ...a, cotacao: novas[a.codigo] }
+              : a
+          )
         );
       }
 
@@ -265,6 +286,8 @@ export function CarteiraProvider({ children }) {
     setBrapiToken,
     atualizarCotacaoUnica,
     atualizarAtivo,
+    iniciarEdicaoCotacao,
+    finalizarEdicaoCotacao,
     adicionarAtivo,
     removerAtivo,
     atualizarMetaClasse,

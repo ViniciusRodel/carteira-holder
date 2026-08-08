@@ -5,18 +5,9 @@ import ClassePill from "../components/ClassePill";
 import ThOrdenavel from "../components/ThOrdenavel";
 import Toggle from "../components/Toggle";
 import { formatarMoeda, formatarNumero, formatarQuantidade, formatarPercentual, formatarPercentualComSinal } from "../lib/formato";
+import { useToast } from "../lib/useToast";
 
 const MODAL_VAZIO = { aberto: false, ativo: null, tipo: "comprar", qtd: "" };
-
-function useToast() {
-  const [toasts, setToasts] = useState([]);
-  const add = (msg, tipo = "compra") => {
-    const id = Date.now();
-    setToasts((t) => [...t, { id, msg, tipo }]);
-    setTimeout(() => setToasts((t) => t.filter((x) => x.id !== id)), 3000);
-  };
-  return { toasts, add };
-}
 
 export default function Rebalanceamento() {
   const { classes, rebalanceamento, aporte, setAporte, excluidos, alternarExclusao, total, atualizarAtivo, adicionarHistorico } = useCarteira();

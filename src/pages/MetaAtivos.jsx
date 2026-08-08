@@ -3,6 +3,7 @@ import { useCarteira } from "../lib/CarteiraContext";
 import { useOrdenacao, aplicarOrdenacao } from "../lib/useOrdenacao";
 import ClassePill from "../components/ClassePill";
 import ThOrdenavel from "../components/ThOrdenavel";
+import CampoEdicaoInline from "../components/CampoEdicaoInline";
 import { formatarMoeda, formatarPercentual } from "../lib/formato";
 
 export default function MetaAtivos() {
@@ -135,20 +136,21 @@ export default function MetaAtivos() {
                     <ClassePill classe={a.classe} />
                   </td>
                   <td className="alinhar-direita">
-                    <input
-                      type="number"
-                      className="input-tabela num"
-                      value={a.nota}
-                      onChange={(e) => atualizarAtivo(a.codigo, { nota: parseFloat(e.target.value) || 0 })}
+                    <CampoEdicaoInline
+                      valor={a.nota}
+                      formato="numero"
+                      min={0}
+                      step={1}
+                      ariaLabel={`Nota de ${a.codigo}`}
+                      onCommit={(novoValor) => atualizarAtivo(a.codigo, { nota: novoValor })}
                     />
                   </td>
                   <td className="alinhar-direita">
-                    <input
-                      type="number"
-                      step="0.01"
-                      className="input-tabela num"
-                      value={a.precoTeto}
-                      onChange={(e) => atualizarAtivo(a.codigo, { precoTeto: parseFloat(e.target.value) || 0 })}
+                    <CampoEdicaoInline
+                      valor={a.precoTeto}
+                      formato="moeda"
+                      ariaLabel={`Preço teto de ${a.codigo} em reais`}
+                      onCommit={(novoValor) => atualizarAtivo(a.codigo, { precoTeto: novoValor })}
                     />
                   </td>
                   <td className="alinhar-direita num">{formatarPercentual(a.pctClasse)}</td>
@@ -183,7 +185,7 @@ export default function MetaAtivos() {
 
 function IconeLixeira() {
   return (
-    <svg width="15" height="15" viewBox="0 0 16 16" fill="none">
+    <svg width="15" height="15" viewBox="0 0 16 16" fill="none" aria-hidden="true">
       <path d="M3 5h10M6.5 5V3.5a1 1 0 0 1 1-1h1a1 1 0 0 1 1 1V5M6.5 7.5v4M9.5 7.5v4M4 5l.6 7.5a1 1 0 0 0 1 .9h4.8a1 1 0 0 0 1-.9L12 5" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );

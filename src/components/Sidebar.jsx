@@ -47,7 +47,7 @@ export default function Sidebar() {
 /* Ícones inline (sem dependência externa, traço único de 1.6px, 18x18) */
 function IconeDashboard() {
   return (
-    <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+    <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
       <rect x="2" y="2" width="6" height="7" rx="1.3" stroke="currentColor" strokeWidth="1.5" />
       <rect x="10" y="2" width="6" height="4" rx="1.3" stroke="currentColor" strokeWidth="1.5" />
       <rect x="10" y="8" width="6" height="8" rx="1.3" stroke="currentColor" strokeWidth="1.5" />
@@ -57,7 +57,7 @@ function IconeDashboard() {
 }
 function IconeCotacoes() {
   return (
-    <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+    <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
       <path d="M2.5 13.5L7 9l3 3 5.5-6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
       <path d="M12.5 6h3v3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
@@ -65,7 +65,7 @@ function IconeCotacoes() {
 }
 function IconeMetaClasses() {
   return (
-    <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+    <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
       <circle cx="9" cy="9" r="6.5" stroke="currentColor" strokeWidth="1.5" />
       <path d="M9 2.5A6.5 6.5 0 0 1 15.5 9H9V2.5z" fill="currentColor" opacity="0.5" />
     </svg>
@@ -73,14 +73,14 @@ function IconeMetaClasses() {
 }
 function IconeMetaAtivos() {
   return (
-    <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+    <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
       <path d="M9 1.5l1.9 4 4.4.6-3.2 3.1.8 4.3L9 11.4l-3.9 2.1.8-4.3-3.2-3.1 4.4-.6L9 1.5z" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round" />
     </svg>
   );
 }
 function IconePosicao() {
   return (
-    <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+    <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
       <rect x="2" y="3" width="14" height="12" rx="1.5" stroke="currentColor" strokeWidth="1.5" />
       <path d="M2 7h14" stroke="currentColor" strokeWidth="1.5" />
       <path d="M5.5 10.5h3M5.5 12.5h2" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
@@ -89,7 +89,7 @@ function IconePosicao() {
 }
 function IconeRebalanceamento() {
   return (
-    <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+    <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
       <path d="M4 6h7.5M4 6L6.2 3.8M4 6l2.2 2.2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
       <path d="M14 12H6.5M14 12l-2.2 2.2M14 12l-2.2-2.2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
@@ -97,7 +97,7 @@ function IconeRebalanceamento() {
 }
 function IconeHistorico() {
   return (
-    <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+    <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
       <circle cx="9" cy="9" r="6.5" stroke="currentColor" strokeWidth="1.5" />
       <path d="M9 5.5V9l2.5 2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
     </svg>

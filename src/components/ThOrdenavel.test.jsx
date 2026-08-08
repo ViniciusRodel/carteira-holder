@@ -49,13 +49,34 @@ describe("ThOrdenavel", () => {
     expect(onOrdenar).toHaveBeenCalledWith("cotacao");
   });
 
-  it("expõe o tooltip via atributo title do <th>", () => {
+  it("expõe o tooltip via atributo title do botão interno", () => {
     const { container } = renderTh({
       campo: "pctMeta",
       ordenacao: { campo: null, direcao: "desc" },
       onOrdenar: vi.fn(),
       tooltip: "Percentual alvo do ativo na carteira",
     });
-    expect(container.querySelector("th").getAttribute("title")).toBe("Percentual alvo do ativo na carteira");
+    expect(container.querySelector("button").getAttribute("title")).toBe("Percentual alvo do ativo na carteira");
+  });
+
+  it("expõe aria-sort no <th> refletindo o estado de ordenação", () => {
+    const { container: nenhum } = renderTh({ campo: "codigo", ordenacao: { campo: "outro", direcao: "desc" }, onOrdenar: vi.fn() });
+    expect(nenhum.querySelector("th").getAttribute("aria-sort")).toBe("none");
+
+    const { container: asc } = renderTh({ campo: "codigo", ordenacao: { campo: "codigo", direcao: "asc" }, onOrdenar: vi.fn() });
+    expect(asc.querySelector("th").getAttribute("aria-sort")).toBe("ascending");
+
+    const { container: desc } = renderTh({ campo: "codigo", ordenacao: { campo: "codigo", direcao: "desc" }, onOrdenar: vi.fn() });
+    expect(desc.querySelector("th").getAttribute("aria-sort")).toBe("descending");
+  });
+
+  it("é operável via teclado: o cabeçalho é um botão real, acessível por role", () => {
+    const onOrdenar = vi.fn();
+    renderTh({ campo: "cotacao", ordenacao: { campo: null, direcao: "desc" }, onOrdenar });
+    const botao = screen.getByRole("button", { name: /Coluna/ });
+    botao.focus();
+    expect(document.activeElement).toBe(botao);
+    fireEvent.click(botao);
+    expect(onOrdenar).toHaveBeenCalledWith("cotacao");
   });
 });
