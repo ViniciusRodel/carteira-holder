@@ -126,7 +126,7 @@ export default function Historico() {
               </thead>
               <tbody>
                 {filtrados.map((h, i) => (
-                  <tr key={i}>
+                  <tr key={i} data-codigo={h.codigo} data-tipo={h.tipo}>
                     <td style={{ color: "var(--text-secondary)", fontSize: 12 }}>{formatarDataHora(h.data)}</td>
                     <td className="codigo-ativo">{h.codigo}</td>
                     <td><ClassePill classe={h.classe} /></td>

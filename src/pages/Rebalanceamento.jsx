@@ -56,10 +56,11 @@ export default function Rebalanceamento() {
     const qtd = parseInt(modal.qtd, 10);
     if (!qtd || qtd <= 0) return;
     const { ativo, tipo } = modal;
+    if (tipo === "vender" && qtd > ativo.quantidade) return;
     const novaQtd =
       tipo === "comprar"
         ? ativo.quantidade + qtd
-        : Math.max(0, ativo.quantidade - qtd);
+        : ativo.quantidade - qtd;
     atualizarAtivo(ativo.codigo, { quantidade: novaQtd });
     const valorTotal = qtd * ativo.cotacao;
     const valor = formatarMoeda(valorTotal);
@@ -148,7 +149,7 @@ export default function Rebalanceamento() {
               {filtrados.map((r) => {
                 const incluido = !excluidos.has(r.codigo);
                 return (
-                  <tr key={r.codigo} style={{ opacity: incluido ? 1 : 0.45 }}>
+                  <tr key={r.codigo} data-codigo={r.codigo} style={{ opacity: incluido ? 1 : 0.45 }}>
                     <td className="codigo-ativo">{r.codigo}</td>
                     <td><ClassePill classe={r.classe} /></td>
                     <td className="alinhar-direita num">{formatarNumero(r.cotacao, 2)}</td>
@@ -295,7 +296,7 @@ function ModalOperacao({ ativo, tipo, qtd, onTipo, onQtd, onConfirmar, onFechar 
               placeholder="0"
               autoFocus
             />
-            {isVenda && ativo.quantidade > 0 && qtd > ativo.quantidade && (
+            {isVenda && qtd > ativo.quantidade && (
               <span style={{ fontSize: 11, color: "#e05555", marginTop: 4, display: "block" }}>
                 Você possui apenas {formatarNumero(ativo.quantidade, 0)} unidade(s)
               </span>
@@ -315,7 +316,7 @@ function ModalOperacao({ ativo, tipo, qtd, onTipo, onQtd, onConfirmar, onFechar 
           <button
             className={`botao ${isVenda ? "botao-perigo-solid" : "botao-primario"}`}
             onClick={onConfirmar}
-            disabled={!qtd || parseInt(qtd, 10) <= 0}
+            disabled={!qtd || parseInt(qtd, 10) <= 0 || (isVenda && qtd > ativo.quantidade)}
           >
             {isVenda ? "Vender" : "Comprar"}
           </button>

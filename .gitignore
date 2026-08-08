@@ -6,3 +6,5 @@ Thumbs.db
 *.log
 .env
 .claude/settings.local.json
+test-results/
+playwright-report/

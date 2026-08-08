@@ -19,4 +19,12 @@ export default defineConfig({
     outDir: "dist",
     emptyOutDir: true,
   },
+
+  test: {
+    // Ambiente padrão "node" para os testes puros (mais rápido); arquivos que
+    // precisam de DOM/localStorage declaram `// @vitest-environment jsdom` no topo.
+    environment: "node",
+    include: ["src/**/*.test.{js,jsx}"],
+    setupFiles: ["src/test/setupTests.js"],
+  },
 });

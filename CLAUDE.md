@@ -22,7 +22,7 @@ Usuário: único, uso pessoal. Carteira de exemplo com ~55 ativos fictícios car
 | Desktop | Tauri v1 (Rust + WebView2) |
 | Build | Vite 5.4 |
 | Estilo | CSS puro com variáveis (tema escuro fixo) |
-| Testes | Nenhum ainda |
+| Testes | Vitest (unitário/integração) + Testing Library + MSW · Playwright (E2E) |
 | TypeScript | Não — JavaScript puro |
 
 ---
@@ -34,6 +34,10 @@ npm run dev          # dev server em http://localhost:1420
 npm run build        # build da UI (dist/)
 npm run tauri:dev    # app Tauri em modo dev (abre janela nativa)
 npm run tauri:build  # gera instalador em src-tauri/target/release/bundle/
+
+npm test              # Vitest — unitário + integração, roda uma vez
+npm run test:watch    # Vitest em modo watch
+npm run test:e2e      # Playwright — sobe o dev server sozinho e roda os E2E em Chromium
 ```
 
 O instalador final fica em:
@@ -57,27 +61,45 @@ src/
     PosicaoAtual.jsx        # Posição atual (valor investido, % atual)
     Rebalanceamento.jsx     # Tabela de rebalanceamento + modal compra/venda + toast
     Historico.jsx           # Registro de todas as operações realizadas
+    Historico.test.jsx      # Confirmação dupla do botão "Limpar histórico"
+    Rebalanceamento.test.jsx # Modal de compra/venda, compra sugerida, validação de venda
 
   components/
     Sidebar.jsx             # Navegação lateral fixa
     CardClasse.jsx          # Card de resumo de cada classe (Dashboard)
-    GraficoPizza.jsx        # Recharts — pizza atual vs meta
-    GraficoBarras.jsx       # Recharts — barras atual vs meta
+    GraficoPizza.jsx        # SVG puro (sem lib externa) — pizza atual vs meta
+    GraficoBarras.jsx       # SVG puro (sem lib externa) — barras atual vs meta
     ClassePill.jsx          # Badge colorido por classe de ativo
     ThOrdenavel.jsx         # <th> clicável com seta de ordenação (props: campo, ordenacao, onOrdenar, tooltip)
     Toggle.jsx              # Interruptor de incluir/excluir ativo no rebalanceamento
+    ThOrdenavel.test.jsx / Toggle.test.jsx
 
   lib/
     CarteiraContext.jsx     # Estado global (Context API) — única fonte de verdade
+    CarteiraContext.test.jsx # Integração: brapi.dev/CoinGecko mockados via MSW
     calculos.js             # Cálculos puros (sem UI): rebalanceamento, déficit, % meta/atual
+    calculos.test.js
     storage.js              # localStorage centralizado (chaves prefixadas "carteira:")
+    storage.test.js
     dadosIniciais.js        # Seed com ~55 ativos fictícios (exemplo de portfólio diversificado)
     formato.js              # formatarMoeda, formatarPercentual, formatarQuantidade, etc.
+    formato.test.js
     useOrdenacao.js         # Hook: useOrdenacao(campo, dir) + aplicarOrdenacao(lista, ordenacao)
+    useOrdenacao.test.js
 
   styles/
     globals.css             # Reset, variáveis CSS, layout base (app-shell, sidebar, content-area)
     components.css          # Estilos de todos os componentes (tabela, modal, toast, badge, etc.)
+
+  test/
+    setupTests.js           # cleanup() automático do Testing Library entre testes (Vitest setupFiles)
+
+e2e/                       # Playwright — roda contra `npm run dev` (Chromium)
+  rebalanceamento-fluxo.spec.js  # Caminho de ouro: aporte -> compra sugerida -> Histórico
+  meta-classes.spec.js           # Slider de meta de classe + badge de validação em tempo real
+
+playwright.config.js
+vite.config.js             # Config do Vite + bloco `test` do Vitest
 ```
 
 ---
@@ -188,12 +210,52 @@ function handleAcao() {
 
 ---
 
+## Testes
+
+109 testes automatizados no total (0 antes desta rodada). Convenção: arquivo de teste
+sempre ao lado do arquivo testado (`Foo.jsx` → `Foo.test.jsx`), exceto os E2E, que ficam
+em `e2e/` na raiz.
+
+**Vitest (unitário + integração)** — `npm test`
+- Ambiente padrão `node` (rápido); arquivos que precisam de DOM/localStorage declaram
+  `// @vitest-environment jsdom` na primeira linha (não usar `environmentMatchGlobs` —
+  foi removido no Vitest 4).
+- `src/test/setupTests.js` roda `cleanup()` do Testing Library após cada teste
+  (`test.setupFiles` no `vite.config.js`) — sem isso, testes de componente subsequentes
+  enxergam DOM vazado de renders anteriores.
+- `calculos.js` / `formato.js`: puros, sem mocks.
+- `storage.js`: mocka `Storage.prototype.setItem/getItem` para simular quota
+  excedida e JSON corrompido.
+- `CarteiraContext.jsx`: MSW (`msw/node`) mocka brapi.dev e CoinGecko — nenhuma chamada
+  de rede real. Importante: `atualizarCotacoes` (lote, chamado automaticamente no mount)
+  checa o token **antes** de filtrar os ativos, então com `brapiToken` vazio (padrão em
+  todo teste que não o define via `setBrapiToken`) o efeito de mount sempre aborta cedo
+  — os testes não precisam se preocupar com esse fetch automático correndo em paralelo.
+- Componentes: `ThOrdenavel`, `Toggle`, `useOrdenacao`/`aplicarOrdenacao`, o padrão de
+  confirmação dupla (via `Historico.jsx`) e o modal de compra/venda (via
+  `Rebalanceamento.jsx`, incluindo a validação de venda acima do estoque).
+
+**Playwright (E2E)** — `npm run test:e2e`
+- `playwright.config.js` sobe `npm run dev` como `webServer` e roda em Chromium contra
+  `http://localhost:1420` — não usa o driver nativo do Tauri, pois nenhum fluxo testado
+  depende de IPC Rust.
+- As linhas de tabela em `Rebalanceamento.jsx` e `Historico.jsx` têm `data-codigo`
+  (e `data-tipo` no Histórico) só para dar seletor estável ao Playwright — não afeta
+  layout nem lógica.
+- Os specs leem os valores reais da tela em vez de fixar números: não quebram se o seed
+  em `dadosIniciais.js` mudar.
+
+**Não coberto ainda**: `Dashboard.jsx`, `Cotacoes.jsx`, `MetaAtivos.jsx`, `PosicaoAtual.jsx`
+(nenhuma lógica de risco alta neles, mas zero cobertura), e não há CI configurado rodando
+`npm test`/`npm run test:e2e` automaticamente em push/PR.
+
+---
+
 ## Problemas conhecidos / limitações ativas
 
 - **"Atualizar todos" para B3 em lote ainda retorna HTTP 400** — o endpoint individual (`/api/v2/stocks/quote?symbols=TICKER`) funciona, mas o lote com 20+ símbolos falha. Pode ser limite do plano gratuito brapi.dev. Contorno: usar o botão ↻ por ativo.
 - **Sem TypeScript** — erros de campo (`item.data.regularMarketPrice` vs `item.regularMarketPrice`) só aparecem em produção.
 - **Token no frontend** — o `brapiToken` fica em localStorage (texto claro). Para produção real deveria passar pelo backend Rust do Tauri.
-- **Sem testes automatizados** — `calculos.js` é o arquivo de maior risco sem cobertura.
 
 ---
 
@@ -204,9 +266,10 @@ function handleAcao() {
 - [ ] Exportar carteira como CSV
 - [ ] Modo claro (toggle)
 - [ ] Onboarding para novo usuário
-- [ ] Testes unitários em `calculos.js` (Jest ou Vitest)
 - [ ] Múltiplas carteiras
 - [ ] Histórico de cotações (sparkline por ativo)
+- [ ] Cobertura de teste para Dashboard/Cotações/MetaAtivos/PosicaoAtual
+- [ ] CI (GitHub Actions) rodando `npm test` + `npm run test:e2e` em cada push/PR
 
 ---
 
@@ -216,3 +279,8 @@ function handleAcao() {
 - CoinGecko substituiu brapi.dev para cripto (plano gratuito não cobre cripto)
 - Dados de exemplo (seed fictício, ~55 ativos) em `dadosIniciais.js`, no mesmo formato usado por uma carteira real
 - `resetarParaExemplo()` no Dashboard carrega esses dados do `dadosIniciais.js`
+- Suíte de testes criada do zero (Vitest + Testing Library + MSW + Playwright, ver seção **Testes**)
+- Ao escrever os testes do modal de venda em `Rebalanceamento.jsx`, achado e corrigido um bug real:
+  vender mais unidades do que o ativo possuía clampava a posição em 0 mas registrava no histórico
+  a quantidade *pedida*, não a *realmente vendida*. `confirmarModal` agora bloqueia a venda acima do
+  estoque (inclusive via atalho de teclado Enter, que ignorava o `disabled` do botão)
