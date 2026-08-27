@@ -269,11 +269,27 @@ function handleAcao() {
 **Tabela compacta**
 `Rebalanceamento.jsx` usa `.tabela-wrap--rebal` + `.tabela--rebal` (padding reduzido, overflow-x: visible).
 
+**Plano de aporte congelado (Rebalanceamento.jsx)**
+As colunas de **sugestão** (Qtd. sug., Vlr. compra, % Meta, % Dif.) não recalculam a cada
+compra. Enquanto `planoCongelado === null` a tabela acompanha o cálculo ao vivo do
+`CarteiraContext`; a primeira interação que altera a base do cálculo — editar o campo *Valor do
+aporte* (`handleAporte`) ou comprar pelo ícone verde (`comprarSugerido`) — chama `congelarPlano()`
+e fixa um snapshot de `rebalanceamento`. A partir daí:
+- o ícone verde abate `vlrCompra` do campo de aporte, registra histórico e marca o código em
+  `executados` (desabilita aquele botão até recalcular), mas **não** mexe nas sugestões;
+- a **posição real** (cotação, Qtd., Investido, % Atual) continua ao vivo — `plano` (useMemo)
+  mescla esses campos de `rebalanceamento` sobre as linhas congeladas;
+- `planoDesatualizado` compara `chavePlano` (código/qtdComprar/vlrCompra/pctMeta/valorAportar) do
+  snapshot vs. o vivo; quando difere, o botão **↻ Recalcular** ao lado do campo de aporte fica
+  habilitado e destacado (`.rebal-recalcular--pendente`) + aviso "Sugestões desatualizadas";
+- `recalcularPlano()` refaz o snapshot com o `rebalanceamento` atual e zera `executados`.
+O modal manual de compra/venda **não** congela o plano (é operação avulsa).
+
 ---
 
 ## Testes
 
-154 testes automatizados no total. Convenção: arquivo de teste
+157 testes automatizados no total. Convenção: arquivo de teste
 sempre ao lado do arquivo testado (`Foo.jsx` → `Foo.test.jsx`), exceto os E2E, que ficam
 em `e2e/` na raiz.
 

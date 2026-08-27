@@ -530,6 +530,34 @@ td.negativo { color: var(--negative); }
   color: var(--accent);
 }
 
+.rebal-aporte-linha {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.rebal-recalcular {
+  white-space: nowrap;
+  padding: 8px 12px;
+  font-size: 12.5px;
+}
+
+.rebal-recalcular:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.rebal-recalcular--pendente {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.rebal-aporte-aviso {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--accent);
+}
+
 .rebal-resumo {
   display: flex;
   gap: 32px;

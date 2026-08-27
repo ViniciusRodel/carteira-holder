@@ -10,29 +10,81 @@ import { useToast } from "../lib/useToast";
 const MODAL_VAZIO = { aberto: false, ativo: null, tipo: "comprar", qtd: "" };
 
 export default function Rebalanceamento() {
-  const { classes, rebalanceamento, aporte, setAporte, excluidos, alternarExclusao, total, atualizarAtivo, adicionarHistorico } = useCarteira();
+  const { classes, ativos, rebalanceamento, aporte, setAporte, excluidos, alternarExclusao, total, atualizarAtivo, adicionarHistorico } = useCarteira();
   const [classeFiltro, setClasseFiltro] = useState("Todos");
   const [modal, setModal] = useState(MODAL_VAZIO);
   const { ordenacao, alternarOrdem } = useOrdenacao("valorAportar", "desc");
   const { toasts, add: addToast } = useToast();
 
+  // Plano de aporte "congelado": enquanto null, a tabela acompanha o cálculo ao
+  // vivo (útil quando as cotações chegam logo após abrir o app). Assim que o
+  // usuário edita o aporte ou executa uma compra pelo ícone verde, o plano é
+  // fixado — as sugestões param de se recalcular a cada compra, e só voltam a
+  // ser atualizadas quando ele clica em "Recalcular". `executados` guarda os
+  // códigos já comprados neste ciclo (desabilita o botão para evitar compra
+  // dupla) e é zerado ao recalcular.
+  const [planoCongelado, setPlanoCongelado] = useState(null);
+  const [executados, setExecutados] = useState(() => new Set());
+
+  // Enquanto congelado, as colunas de SUGESTÃO (qtd. sug., vlr. compra, % meta,
+  // % dif.) ficam fixas, mas a POSIÇÃO real (cotação, qtd., investido, % atual)
+  // continua ao vivo — assim dá pra acompanhar o que já foi comprado sem perder
+  // o plano de referência.
+  const plano = useMemo(() => {
+    if (!planoCongelado) return rebalanceamento;
+    const vivo = new Map(rebalanceamento.map((r) => [r.codigo, r]));
+    return planoCongelado.map((r) => {
+      const atual = vivo.get(r.codigo);
+      return atual
+        ? { ...r, cotacao: atual.cotacao, quantidade: atual.quantidade, valorInvestido: atual.valorInvestido, pctAtual: atual.pctAtual }
+        : r;
+    });
+  }, [planoCongelado, rebalanceamento]);
+
   const abas = ["Todos", ...classes];
+
+  const chavePlano = (r) => `${r.codigo}|${r.qtdComprar}|${r.vlrCompra}|${r.pctMeta}|${r.valorAportar}`;
+  const planoDesatualizado = useMemo(() => {
+    if (!planoCongelado) return false;
+    if (planoCongelado.length !== rebalanceamento.length) return true;
+    const atual = new Map(rebalanceamento.map((r) => [r.codigo, chavePlano(r)]));
+    return planoCongelado.some((r) => atual.get(r.codigo) !== chavePlano(r));
+  }, [planoCongelado, rebalanceamento]);
+
+  function congelarPlano() {
+    setPlanoCongelado((atual) => atual ?? rebalanceamento);
+  }
+
+  function recalcularPlano() {
+    setPlanoCongelado(rebalanceamento);
+    setExecutados(new Set());
+  }
 
   const filtrados = useMemo(() => {
     const base =
       classeFiltro === "Todos"
-        ? rebalanceamento
-        : rebalanceamento.filter((r) => r.classe === classeFiltro);
+        ? plano
+        : plano.filter((r) => r.classe === classeFiltro);
     return aplicarOrdenacao(base, ordenacao);
-  }, [rebalanceamento, classeFiltro, ordenacao]);
+  }, [plano, classeFiltro, ordenacao]);
 
-  const totalAportar = rebalanceamento.reduce((acc, r) => acc + r.valorAportar, 0);
+  const totalAportar = plano.reduce((acc, r) => acc + r.valorAportar, 0);
 
   function comprarSugerido(r) {
-    if (r.qtdComprar <= 0) return;
-    atualizarAtivo(r.codigo, { quantidade: r.quantidade + r.qtdComprar });
+    if (r.qtdComprar <= 0 || executados.has(r.codigo)) return;
+    congelarPlano();
+    const atual = ativos.find((a) => a.codigo === r.codigo);
+    const baseQtd = atual ? atual.quantidade : r.quantidade;
+    atualizarAtivo(r.codigo, { quantidade: baseQtd + r.qtdComprar });
+    setAporte(Math.max(0, Math.round((aporte - r.vlrCompra) * 100) / 100));
+    setExecutados((prev) => new Set(prev).add(r.codigo));
     addToast(`Comprado ${r.qtdComprar} × ${r.codigo} — ${formatarMoeda(r.vlrCompra)}`, "compra");
     adicionarHistorico({ codigo: r.codigo, classe: r.classe, tipo: "compra", quantidade: r.qtdComprar, cotacao: r.cotacao, valor: r.vlrCompra });
+  }
+
+  function handleAporte(valor) {
+    congelarPlano();
+    setAporte(valor);
   }
 
   function abrirModal(r) {
@@ -83,13 +135,27 @@ export default function Rebalanceamento() {
       <div className="painel rebal-config">
         <div className="campo-form" style={{ minWidth: 220 }}>
           <label>Valor do aporte (R$)</label>
-          <input
-            type="number"
-            step="0.01"
-            className="input-base input-aporte num"
-            value={aporte}
-            onChange={(e) => setAporte(parseFloat(e.target.value) || 0)}
-          />
+          <div className="rebal-aporte-linha">
+            <input
+              type="number"
+              step="0.01"
+              className="input-base input-aporte num"
+              value={aporte}
+              onChange={(e) => handleAporte(parseFloat(e.target.value) || 0)}
+            />
+            <button
+              type="button"
+              className={`botao botao-secundario rebal-recalcular${planoDesatualizado ? " rebal-recalcular--pendente" : ""}`}
+              onClick={recalcularPlano}
+              disabled={!planoDesatualizado}
+              title="Recalcula as sugestões de compra com o aporte e as posições atuais"
+            >
+              ↻ Recalcular
+            </button>
+          </div>
+          {planoDesatualizado && (
+            <span className="rebal-aporte-aviso">Sugestões desatualizadas — clique em Recalcular</span>
+          )}
         </div>
         <div className="rebal-resumo">
           <div>
@@ -184,10 +250,16 @@ export default function Rebalanceamento() {
                           <IconeOperacao />
                         </button>
                         <button
-                          className={`rebal-op-btn rebal-op-btn--comprar${r.qtdComprar <= 0 ? " rebal-op-btn--desabilitado" : ""}`}
-                          title={r.qtdComprar > 0 ? `Comprar ${r.qtdComprar} und. — ${formatarMoeda(r.vlrCompra)}` : "Aporte insuficiente para 1 unidade"}
+                          className={`rebal-op-btn rebal-op-btn--comprar${r.qtdComprar <= 0 || executados.has(r.codigo) ? " rebal-op-btn--desabilitado" : ""}`}
+                          title={
+                            executados.has(r.codigo)
+                              ? "Já comprado neste plano — clique em Recalcular para nova sugestão"
+                              : r.qtdComprar > 0
+                              ? `Comprar ${r.qtdComprar} und. — ${formatarMoeda(r.vlrCompra)}`
+                              : "Aporte insuficiente para 1 unidade"
+                          }
                           onClick={() => comprarSugerido(r)}
-                          disabled={r.qtdComprar <= 0}
+                          disabled={r.qtdComprar <= 0 || executados.has(r.codigo)}
                         >
                           <IconeComprar />
                         </button>

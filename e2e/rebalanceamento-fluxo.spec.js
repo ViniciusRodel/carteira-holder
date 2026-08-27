@@ -11,6 +11,9 @@ test.describe("Fluxo completo: aporte -> compra sugerida -> Histórico", () => {
     await expect(page).toHaveURL(/#\/rebalanceamento$/);
 
     await page.locator("input.input-aporte").fill("10000");
+    // Editar o aporte congela o plano — é preciso recalcular para as sugestões
+    // refletirem o novo valor antes de comprar.
+    await page.getByRole("button", { name: /recalcular/i }).click();
 
     const linhaComDeficit = page
       .locator("table.tabela--rebal tbody tr")

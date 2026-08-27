@@ -55,6 +55,62 @@ describe("Rebalanceamento — botão de compra sugerida (comprarSugerido)", () =
     expect(screen.getByText(/comprado 100 × itub3/i)).toBeTruthy();
   });
 
+  it("abate o valor da compra do campo 'Valor do aporte'", () => {
+    renderRebalanceamento();
+
+    const inputAporte = document.querySelector(".input-aporte");
+    // aporte padrão R$ 1.000; ITUB3 concentra todo o déficit -> vlrCompra = 100 × 10 = 1.000
+    expect(Number(inputAporte.value)).toBe(1000);
+
+    fireEvent.click(linhaDoAtivo("ITUB3").querySelector(".rebal-op-btn--comprar"));
+
+    expect(Number(inputAporte.value)).toBe(0);
+  });
+
+  it("congela as sugestões ao comprar pelo ícone verde; só o botão Recalcular as atualiza", () => {
+    renderRebalanceamento();
+
+    // Sugestão inicial de ITUB3: 100 unidades
+    expect(within(linhaDoAtivo("ITUB3")).getByText("100")).toBeTruthy();
+
+    const botaoRecalcular = screen.getByRole("button", { name: /recalcular/i });
+    expect(botaoRecalcular.disabled).toBe(true);
+
+    fireEvent.click(linhaDoAtivo("ITUB3").querySelector(".rebal-op-btn--comprar"));
+
+    // Posição foi para 101 e o aporte zerou, mas a sugestão continua "100" (plano congelado)
+    expect(within(linhaDoAtivo("ITUB3")).getByText("101")).toBeTruthy();
+    expect(within(linhaDoAtivo("ITUB3")).getByText("100")).toBeTruthy();
+    // O botão verde daquela linha fica desabilitado até recalcular
+    expect(linhaDoAtivo("ITUB3").querySelector(".rebal-op-btn--comprar").disabled).toBe(true);
+
+    // Agora o Recalcular está habilitado
+    expect(botaoRecalcular.disabled).toBe(false);
+    fireEvent.click(botaoRecalcular);
+
+    // Recalculado com aporte 0 -> ITUB3 deixa de sugerir compra
+    expect(within(linhaDoAtivo("ITUB3")).queryByText("100")).toBeNull();
+  });
+
+  it("editar o campo 'Valor do aporte' não recalcula as sugestões até clicar em Recalcular", () => {
+    renderRebalanceamento();
+
+    expect(within(linhaDoAtivo("ITUB3")).getByText("100")).toBeTruthy();
+
+    fireEvent.change(document.querySelector(".input-aporte"), { target: { value: "500" } });
+
+    // Sugestão continua "100" (congelada), mas o Recalcular sinaliza pendência
+    expect(within(linhaDoAtivo("ITUB3")).getByText("100")).toBeTruthy();
+    const botaoRecalcular = screen.getByRole("button", { name: /recalcular/i });
+    expect(botaoRecalcular.disabled).toBe(false);
+
+    fireEvent.click(botaoRecalcular);
+
+    // aporte 500 / cotação 10 = 50 unidades sugeridas
+    expect(within(linhaDoAtivo("ITUB3")).getByText("50")).toBeTruthy();
+    expect(within(linhaDoAtivo("ITUB3")).queryByText("100")).toBeNull();
+  });
+
   it("o botão de compra sugerida fica desabilitado quando o ativo já está acima da meta", () => {
     renderRebalanceamento();
     const linha = linhaDoAtivo("PETR4");
