@@ -9,6 +9,14 @@ import {
   tabelaPosicaoAtual,
   metasClasseValidas,
 } from "./calculos";
+import {
+  TTL_PROVENTOS_MS,
+  mapearRespostaAcao,
+  mapearRespostaFii,
+  dentroDoEscopoHistorico,
+  paraProventoPosicao,
+  montarResumo,
+} from "./proventos";
 
 const CarteiraContext = createContext(null);
 
@@ -41,6 +49,12 @@ export function CarteiraProvider({ children }) {
     atualizados: 0,
     erro: null,
   });
+  const [cacheProventos, setCacheProventos] = useState(() => storage.carregarProventos());
+  const [statusProventos, setStatusProventos] = useState({
+    atualizadoEm: null,
+    atualizando: false,
+    erro: null,
+  });
 
   useEffect(() => storage.salvarAtivos(ativos), [ativos]);
   useEffect(() => storage.salvarMetasClasse(metasClasse), [metasClasse]);
@@ -48,6 +62,7 @@ export function CarteiraProvider({ children }) {
   useEffect(() => storage.salvarExcluidos(Array.from(excluidos)), [excluidos]);
   useEffect(() => storage.salvarBrapiToken(brapiToken), [brapiToken]);
   useEffect(() => storage.salvarHistorico(historico), [historico]);
+  useEffect(() => storage.salvarProventos(cacheProventos), [cacheProventos]);
 
   const brapiTokenRef = useRef(brapiToken);
   useEffect(() => { brapiTokenRef.current = brapiToken; }, [brapiToken]);
@@ -256,6 +271,96 @@ export function CarteiraProvider({ children }) {
     return () => clearInterval(id);
   }, [atualizarCotacoes]);
 
+  // --- Integração brapi.dev v2 — proventos (dividendos, JCP, rendimentos de FII) ---
+  const cacheProventosRef = useRef(cacheProventos);
+  useEffect(() => { cacheProventosRef.current = cacheProventos; }, [cacheProventos]);
+
+  // Busca proventos de UM ativo (usado no botão por linha da tela Proventos e
+  // no loop sequencial de "Buscar todos"). Mesmo padrão de
+  // atualizarCotacaoUnica: uma chamada por ativo, sem tentativa de lote — o
+  // endpoint de dividendos em grupo (`symbols=A,B,C`) chegou a ser tentado e
+  // falhou por completo em teste real (ver CLAUDE.md), então a estratégia foi
+  // simplificada para sempre buscar item a item, como já era feito para cotação.
+  const atualizarProventoUnico = useCallback(async (codigo, classe) => {
+    const token = brapiTokenRef.current;
+    if (!token) return { ok: false, erro: "Token não configurado" };
+
+    const endpointPath = classe === "FIIs" ? "fii/dividends" : "stocks/dividends";
+    const mapearItem = classe === "FIIs" ? mapearRespostaFii : mapearRespostaAcao;
+
+    try {
+      const resp = await fetch(
+        `https://brapi.dev/api/v2/${endpointPath}?symbols=${codigo}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      if (!resp.ok) return { ok: false, erro: `HTTP ${resp.status}` };
+      const json = await resp.json();
+      const item = json.results?.[0];
+      const proventosAtivo = item ? mapearItem(codigo, item) : [];
+
+      setCacheProventos((prev) => ({
+        buscadoEm: new Date().toISOString(),
+        porAtivo: { ...prev.porAtivo, [codigo]: proventosAtivo },
+      }));
+
+      return { ok: true, quantidade: proventosAtivo.length };
+    } catch (e) {
+      return { ok: false, erro: e.message || "Sem conexão" };
+    }
+  }, []);
+
+  // Busca sequencial de todos os ativos elegíveis (Ações, ETFs e FIIs — não
+  // cripto), um de cada vez, com pequeno espaçamento entre chamadas — mesma
+  // estratégia de atualizarCotacoes para B3. Só dispara automaticamente
+  // quando o cache está ausente/expirado (TTL de 12h) ou quando forçado.
+  const atualizarProventos = useCallback(async ({ forcar = false } = {}) => {
+    const cacheAtual = cacheProventosRef.current;
+    if (!forcar && cacheAtual.buscadoEm) {
+      const idade = Date.now() - new Date(cacheAtual.buscadoEm).getTime();
+      if (idade < TTL_PROVENTOS_MS) return;
+    }
+
+    const token = brapiTokenRef.current;
+    if (!token) {
+      setStatusProventos((s) => ({
+        ...s,
+        atualizando: false,
+        erro: "Token brapi.dev não configurado. Insira seu token gratuito na tela Cotações.",
+      }));
+      return;
+    }
+
+    const elegiveis = ativosRef.current.filter(
+      (a) => REGEX_B3.test(a.codigo) && a.classe !== "Criptomoedas"
+    );
+    if (elegiveis.length === 0) return;
+
+    setStatusProventos((s) => ({ ...s, atualizando: true, erro: null }));
+
+    let atualizados = 0;
+    const erros = [];
+    for (const ativo of elegiveis) {
+      const resultado = await atualizarProventoUnico(ativo.codigo, ativo.classe);
+      if (resultado.ok) atualizados++;
+      else erros.push(`${ativo.codigo}: ${resultado.erro}`);
+      await new Promise((r) => setTimeout(r, 250));
+    }
+
+    setStatusProventos({
+      atualizadoEm: new Date(),
+      atualizando: false,
+      erro: erros.length > 0
+        ? `${erros.length}/${elegiveis.length} ativo(s) com erro — ex: ${erros[0]}`
+        : null,
+    });
+  }, [atualizarProventoUnico]);
+
+  // Busca ao abrir o app só se o cache estiver ausente/expirado (TTL de 12h) —
+  // sem intervalo automático, diferente de atualizarCotacoes.
+  useEffect(() => {
+    atualizarProventos();
+  }, [atualizarProventos]);
+
   // --- Derivados ---
   const total = useMemo(() => valorTotalInvestido(ativos), [ativos]);
   const resumoClasses = useMemo(() => resumoPorClasse(ativos, metasClasse), [ativos, metasClasse]);
@@ -266,6 +371,24 @@ export function CarteiraProvider({ children }) {
     [ativos, metasClasse, aporte, excluidos]
   );
   const metasValidas = useMemo(() => metasClasseValidas(metasClasse), [metasClasse]);
+
+  // Cruza o cache de proventos (bruto, por código) com a quantidade ATUAL de
+  // cada ativo — recalcula sozinho sempre que a posição muda, sem precisar de
+  // nova busca à API. Ver limitação documentada em paraProventoPosicao.
+  const proventos = useMemo(() => {
+    const lista = [];
+    for (const ativo of ativos) {
+      const brutos = cacheProventos.porAtivo[ativo.codigo];
+      if (!brutos) continue;
+      for (const provento of brutos) {
+        if (!dentroDoEscopoHistorico(provento)) continue;
+        lista.push({ ...paraProventoPosicao(provento, ativo.quantidade), classe: ativo.classe });
+      }
+    }
+    return lista;
+  }, [ativos, cacheProventos]);
+
+  const resumoProventos = useMemo(() => montarResumo(proventos), [proventos]);
 
   const value = {
     ativos,
@@ -282,6 +405,10 @@ export function CarteiraProvider({ children }) {
     rebalanceamento,
     metasValidas,
     statusCotacao,
+    proventos,
+    resumoProventos,
+    statusProventos,
+    cacheProventos,
     setAporte,
     setBrapiToken,
     atualizarCotacaoUnica,
@@ -294,6 +421,8 @@ export function CarteiraProvider({ children }) {
     alternarExclusao,
     resetarParaExemplo,
     atualizarCotacoes,
+    atualizarProventos,
+    atualizarProventoUnico,
     adicionarHistorico,
     limparHistorico,
   };

@@ -14,7 +14,10 @@ const KEYS = {
   EXCLUIDOS: "carteira:excluidos",
   BRAPI_TOKEN: "carteira:brapiToken",
   HISTORICO: "carteira:historico",
+  PROVENTOS: "carteira:proventos",
 };
+
+const CACHE_PROVENTOS_VAZIO = { buscadoEm: null, porAtivo: {} };
 
 function safeGet(key, fallback) {
   try {
@@ -70,6 +73,12 @@ export const storage = {
   },
   salvarHistorico(historico) {
     safeSet(KEYS.HISTORICO, historico);
+  },
+  carregarProventos() {
+    return safeGet(KEYS.PROVENTOS, CACHE_PROVENTOS_VAZIO);
+  },
+  salvarProventos(cache) {
+    safeSet(KEYS.PROVENTOS, cache);
   },
   limparTudo() {
     Object.values(KEYS).forEach((k) => {

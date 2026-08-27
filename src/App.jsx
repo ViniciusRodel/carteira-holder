@@ -7,6 +7,7 @@ import MetaClasses from "./pages/MetaClasses";
 import MetaAtivos from "./pages/MetaAtivos";
 import PosicaoAtual from "./pages/PosicaoAtual";
 import Rebalanceamento from "./pages/Rebalanceamento";
+import Proventos from "./pages/Proventos";
 import Historico from "./pages/Historico";
 import { CarteiraProvider } from "./lib/CarteiraContext";
 
@@ -31,6 +32,7 @@ export default function App() {
               <Route path="/meta-ativos" element={<MetaAtivos />} />
               <Route path="/posicao-atual" element={<PosicaoAtual />} />
               <Route path="/rebalanceamento" element={<Rebalanceamento />} />
+              <Route path="/proventos" element={<Proventos />} />
               <Route path="/historico" element={<Historico />} />
             </Routes>
           </main>

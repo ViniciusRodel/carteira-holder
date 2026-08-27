@@ -994,6 +994,58 @@ th.th-ordenavel--ativo .th-seta-icone {
   color: var(--accent);
 }
 
+/* ---------- Proventos: badges de tipo e status ---------- */
+.provento-tipo-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+}
+.provento-tipo-badge--DIVIDENDO {
+  background: rgba(45, 212, 167, 0.12);
+  color: var(--positive);
+}
+.provento-tipo-badge--JCP {
+  background: var(--accent-soft, rgba(45, 212, 167, 0.12));
+  color: var(--accent);
+}
+.provento-tipo-badge--RENDIMENTO_FII {
+  background: rgba(91, 155, 217, 0.14);
+  color: var(--classe-fiis);
+}
+.provento-tipo-badge--BONIFICACAO,
+.provento-tipo-badge--SUBSCRICAO,
+.provento-tipo-badge--OUTRO {
+  background: var(--bg-panel-raised);
+  color: var(--text-secondary);
+}
+
+.provento-status-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+}
+.provento-status-badge--PAGO {
+  background: rgba(45, 212, 167, 0.12);
+  color: var(--positive);
+}
+.provento-status-badge--PREVISTO {
+  background: rgba(232, 182, 95, 0.12);
+  color: var(--warning);
+}
+
+.provento-aviso-aproximacao {
+  font-size: 12.5px;
+  color: var(--text-tertiary);
+  margin: -4px 0 18px;
+}
+
 /* ---------- Campo de edição inline (célula de planilha) ---------- */
 .campo-edicao-inline {
   position: relative;

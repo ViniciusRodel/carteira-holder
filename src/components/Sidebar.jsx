@@ -8,6 +8,7 @@ const ITENS = [
   { to: "/meta-ativos", label: "Meta — Ativos", icone: IconeMetaAtivos },
   { to: "/posicao-atual", label: "Posição Atual", icone: IconePosicao },
   { to: "/rebalanceamento", label: "Rebalanceamento", icone: IconeRebalanceamento },
+  { to: "/proventos", label: "Proventos", icone: IconeProventos },
   { to: "/historico", label: "Histórico", icone: IconeHistorico },
 ];
 
@@ -95,6 +96,16 @@ function IconeRebalanceamento() {
     </svg>
   );
 }
+function IconeProventos() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+      <circle cx="9" cy="9" r="6.5" stroke="currentColor" strokeWidth="1.5" />
+      <path d="M9 5v2.2M9 10.8V13" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+      <path d="M11 7.3c0-.9-.9-1.6-2-1.6s-2 .6-2 1.5c0 .9.9 1.2 2 1.4 1.1.2 2 .6 2 1.5S10.1 11.6 9 11.6s-2-.7-2-1.6" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
+    </svg>
+  );
+}
+
 function IconeHistorico() {
   return (
     <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">

@@ -5,6 +5,6 @@ src-tauri/target/
 Thumbs.db
 *.log
 .env
-.claude/settings.local.json
+.claude/
 test-results/
 playwright-report/
